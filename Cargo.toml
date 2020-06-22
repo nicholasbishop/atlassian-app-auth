@@ -1,0 +1,16 @@
+[package]
+name = "atlassian-app-auth"
+version = "0.5.0"
+authors = ["Nicholas Bishop <nicholasbishop@gmail.com>"]
+edition = "2018"
+description = "Library for authenticating as an Atlassian Connect App"
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/nicholasbishop/atlassian-app-auth"
+
+[dependencies]
+jsonwebtoken = "7.1"
+serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.9"
+thiserror = "1.0"
+url = "2.1"
