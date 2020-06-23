@@ -55,7 +55,8 @@ fn create_query_string_hash(params: &Parameters) -> String {
         .collect::<Vec<_>>();
     query_pairs.sort_unstable();
 
-    let canonical_request = format!("{}&{}&{}", method, path, query_pairs.join("&"));
+    let canonical_request =
+        format!("{}&{}&{}", method, path, query_pairs.join("&"));
 
     format!("{:x}", sha2::Sha256::digest(canonical_request.as_bytes()))
 }
@@ -108,7 +109,9 @@ pub fn create_auth_header(params: &Parameters) -> Result<Header, AuthError> {
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
         &claims,
-        &jsonwebtoken::EncodingKey::from_secret(params.shared_secret.as_bytes()),
+        &jsonwebtoken::EncodingKey::from_secret(
+            params.shared_secret.as_bytes(),
+        ),
     )?;
 
     Ok(Header {
