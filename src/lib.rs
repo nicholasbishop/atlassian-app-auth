@@ -1,3 +1,4 @@
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::Serialize;
 use sha2::Digest;
 use std::time;
@@ -6,6 +7,48 @@ use url::Url;
 // See
 // https://developer.atlassian.com/cloud/jira/platform/understanding-jwt
 // for details of how Atlassian implements JWT.
+
+// The set of characters to percent-encode for query parameters. The
+// Jira documentation says these should be consistent with OAuth 1.0,
+// which is defined in RFC 5849.
+//
+// From https://tools.ietf.org/html/rfc5849#page-29:
+// * (ALPHA, DIGIT, "-", ".", "_", "~") MUST NOT be encoded
+// * All other characters MUST be encoded.
+//
+// The percent-encoding API prevents us from defining the set in these
+// terms; they seem to really want the usage to be as annoying as
+// possible.
+pub const QUERY_PARAM_ENCODE_SET: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    .add(b'/')
+    .add(b':')
+    .add(b';')
+    .add(b'<')
+    .add(b'=')
+    .add(b'>')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}');
 
 /// Input parameters for creating a JWT.
 pub struct Parameters {
@@ -43,7 +86,7 @@ pub enum AuthError {
 
 // TODO: there are quite a few special cases described in the doc
 // linked above that are not yet handled here.
-fn create_query_string_hash(params: &Parameters) -> String {
+fn create_canonical_request(params: &Parameters) -> String {
     let url = &params.url;
     let method = params.method.as_str().to_uppercase();
     // Assume the path is already canonical
@@ -51,13 +94,21 @@ fn create_query_string_hash(params: &Parameters) -> String {
 
     let mut query_pairs = url
         .query_pairs()
-        .map(|(key, val)| format!("{}={}", key, val))
+        .map(|(key, val)| {
+            format!(
+                "{}={}",
+                key,
+                utf8_percent_encode(&val, QUERY_PARAM_ENCODE_SET)
+            )
+        })
         .collect::<Vec<_>>();
     query_pairs.sort_unstable();
 
-    let canonical_request =
-        format!("{}&{}&{}", method, path, query_pairs.join("&"));
+    format!("{}&{}&{}", method, path, query_pairs.join("&"))
+}
 
+fn create_query_string_hash(params: &Parameters) -> String {
+    let canonical_request = create_canonical_request(params);
     format!("{:x}", sha2::Sha256::digest(canonical_request.as_bytes()))
 }
 
@@ -124,21 +175,46 @@ pub fn create_auth_header(params: &Parameters) -> Result<Header, AuthError> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_query_string_hash() {
-        let params = Parameters {
-            method: "get".into(),
-            url: Url::parse(
-                "https://somecorp.atlassian.net/rest/api/3/project/search?query=myproject",
-            )
-            .unwrap(),
+    fn create_params(method: &str, url: &str) -> Parameters {
+        Parameters {
+            method: method.into(),
+            url: Url::parse(url).unwrap(),
             app_key: String::new(),
             shared_secret: String::new(),
             valid_for: time::Duration::new(0, 0),
-        };
+        }
+    }
+
+    #[test]
+    fn test_canonical_request() {
+        let params = create_params(
+            "get",
+            "https://somecorp.atlassian.net/rest/api/3/project/search?query=myproject",
+        );
+        assert_eq!(
+            create_canonical_request(&params),
+            "GET&/rest/api/3/project/search&query=myproject"
+        );
+    }
+
+    #[test]
+    fn test_canonical_request_query_params_encoding() {
+        let params = create_params(
+            "get",
+            "https://example.com/example?query=x y,z%2B*~",
+        );
+        assert_eq!(
+            create_canonical_request(&params),
+            "GET&/example&query=x%20y%2Cz%2B%2A~"
+        );
+    }
+
+    #[test]
+    fn test_query_string_hash() {
+        let params = create_params("get", "https://example.com/example");
         assert_eq!(
             create_query_string_hash(&params),
-            "29df35d41afcc61d322eba090286bf96b42fa3d7b5b5d1d2d261083d1cefd7fe"
+            "0073e2edb5df6a8af18c4398d32532f2b46a05295d10fac402131dd044032a61"
         );
     }
 }
