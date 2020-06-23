@@ -64,7 +64,7 @@ fn main() {
     )
     .expect("failed to create auth header");
     request.headers_mut().insert(
-        "Authorization",
+        header.name,
         header.value.parse().expect("failed to parse auth value"),
     );
 

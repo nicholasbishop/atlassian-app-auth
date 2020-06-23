@@ -149,7 +149,7 @@ impl Claims {
 /// Request header.
 pub struct Header {
     /// Header name.
-    pub name: String,
+    pub name: &'static str,
     /// Header value.
     pub value: String,
 }
@@ -166,7 +166,7 @@ pub fn create_auth_header(params: &Parameters) -> Result<Header, AuthError> {
     )?;
 
     Ok(Header {
-        name: "Authorization".into(),
+        name: "Authorization",
         value: format!("JWT {}", token),
     })
 }
