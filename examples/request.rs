@@ -12,6 +12,10 @@ use std::time::Duration;
 /// Send a request to Jira and pretty-print the JSON response.
 #[derive(argh::FromArgs)]
 struct Opt {
+    /// optional path of a JSON file to include as the body of the request
+    #[argh(option)]
+    body: Option<PathBuf>,
+
     /// path of the JSON credentials file containing the key and
     /// secret key
     #[argh(positional)]
@@ -47,10 +51,18 @@ fn main() {
     let client = Client::new();
     let method = Method::from_bytes(opt.method.to_uppercase().as_bytes())
         .expect("invalid method");
-    let mut request = client
-        .request(method, &opt.url)
-        .build()
-        .expect("invalid request");
+    let mut request = client.request(method, &opt.url);
+
+    // Add the optional JSON body
+    if let Some(body_path) = opt.body {
+        let body =
+            fs::read_to_string(body_path).expect("failed to read body file");
+        request = request
+            .header("Content-Type", "application/json")
+            .body(body);
+    }
+
+    let mut request = request.build().expect("invalid request");
 
     // Add the auth header
     let header = atlassian_app_auth::create_auth_header(
