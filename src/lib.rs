@@ -14,6 +14,8 @@
 //!
 //! [examples/request.rs]: https://github.com/nicholasbishop/atlassian-app-auth/blob/main/examples/request.rs
 
+#![warn(missing_docs)]
+
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::Serialize;
 use sha2::Digest;
