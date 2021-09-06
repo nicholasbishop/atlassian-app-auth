@@ -162,6 +162,7 @@ pub struct Header {
     pub value: String,
 }
 
+/// Create an authentication [`Header`].
 pub fn create_auth_header(params: &Parameters) -> Result<Header, AuthError> {
     let claims = Claims::new(params)?;
 
