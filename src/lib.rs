@@ -8,9 +8,9 @@
 //!
 //! Relevant documentation:
 //!
-//! - https://developer.atlassian.com/cloud/jira/platform/integrating-with-jira-cloud
-//! - https://developer.atlassian.com/cloud/jira/platform/security-for-connect-apps
-//! - https://developer.atlassian.com/cloud/jira/platform/understanding-jwt
+//! - <https://developer.atlassian.com/cloud/jira/platform/integrating-with-jira-cloud>
+//! - <https://developer.atlassian.com/cloud/jira/platform/security-for-connect-apps>
+//! - <https://developer.atlassian.com/cloud/jira/platform/understanding-jwt>
 //!
 //! [examples/request.rs]: https://github.com/nicholasbishop/atlassian-app-auth/blob/main/examples/request.rs
 
@@ -24,7 +24,7 @@ use url::Url;
 /// Jira documentation says these should be consistent with OAuth 1.0,
 /// which is defined in RFC 5849.
 ///
-/// From https://tools.ietf.org/html/rfc5849#page-29:
+/// From <https://tools.ietf.org/html/rfc5849#page-29>:
 /// * (ALPHA, DIGIT, "-", ".", "_", "~") MUST NOT be encoded
 /// * All other characters MUST be encoded.
 pub const QUERY_PARAM_ENCODE_SET: &AsciiSet = &CONTROLS
