@@ -125,7 +125,7 @@ fn create_query_string_hash(params: &Parameters) -> String {
 #[derive(Debug, Serialize)]
 struct Claims {
     /// The issuer of the claim. This matches the key in the app
-    /// descriptor ("com.neverware.crash").
+    /// descriptor (e.g. "com.example.app").
     iss: String,
 
     /// Custom Atlassian claim that prevents URL tampering.
