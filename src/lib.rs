@@ -4,21 +4,13 @@ use sha2::Digest;
 use std::time;
 use url::Url;
 
-// See
-// https://developer.atlassian.com/cloud/jira/platform/understanding-jwt
-// for details of how Atlassian implements JWT.
-
-// The set of characters to percent-encode for query parameters. The
-// Jira documentation says these should be consistent with OAuth 1.0,
-// which is defined in RFC 5849.
-//
-// From https://tools.ietf.org/html/rfc5849#page-29:
-// * (ALPHA, DIGIT, "-", ".", "_", "~") MUST NOT be encoded
-// * All other characters MUST be encoded.
-//
-// The percent-encoding API prevents us from defining the set in these
-// terms; they seem to really want the usage to be as annoying as
-// possible.
+/// The set of characters to percent-encode for query parameters. The
+/// Jira documentation says these should be consistent with OAuth 1.0,
+/// which is defined in RFC 5849.
+///
+/// From https://tools.ietf.org/html/rfc5849#page-29:
+/// * (ALPHA, DIGIT, "-", ".", "_", "~") MUST NOT be encoded
+/// * All other characters MUST be encoded.
 pub const QUERY_PARAM_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b' ')
     .add(b'!')
