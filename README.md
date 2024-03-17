@@ -1,9 +1,9 @@
 # atlassian-app-auth
 
+**This tool is no longer under active development. If you are interested in taking over or repurposing the name on crates.io, feel free to contact me: nbishop@nbishop.net**
+
 [![crates.io](https://img.shields.io/crates/v/atlassian-app-auth.svg)](https://crates.io/crates/atlassian-app-auth)
 [![Documentation](https://docs.rs/atlassian-app-auth/badge.svg)](https://docs.rs/atlassian-app-auth)
-
-⚠️ This crate is no longer maintained and the repository has been archived. If you are interested in taking over the crate, feel free to contact me: nbishop@nbishop.net.
 
 This is a small library for authenticating with an Atlassian API (such
 as the Jira API) as an Atlassian Connect App.
